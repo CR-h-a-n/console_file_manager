@@ -9,22 +9,23 @@ def print_menu():
           ' 2. Удалить (файл/папку)', '\n',
           ' 3. Копировать (файл/папку)', '\n',
           ' 4. Просмотр содержимого рабочей директории', '\n',
-          ' 5. Посмотреть только папки', '\n',
-          ' 6. Посмотреть только файлы', '\n',
-          ' 7. Просмотр информации об операционной системе', '\n',
-          ' 8. Создатель программы', '\n',
-          ' 9. Играть в викторину', '\n',
-          '10. Мой банковский счет', '\n',
-          '11. Смена рабочей директории (*необязательный пункт)', '\n',
-          '12. Выход')
+          ' 5. Cохранить содержимое рабочей директории в файл', '\n',
+          ' 6. Посмотреть только папки', '\n',
+          ' 7. Посмотреть только файлы', '\n',
+          ' 8. Просмотр информации об операционной системе', '\n',
+          ' 9. Создатель программы', '\n',
+          '10. Играть в викторину', '\n',
+          '11. Мой банковский счет', '\n',
+          '12. Смена рабочей директории (*необязательный пункт)', '\n',
+          '13. Выход')
 
 
 def menu_choose():
     menu = ''
     while not menu.isnumeric():
-        menu = input('Выберите пункт меню(1-12): ').strip()
+        menu = input('Выберите пункт меню(1-13): ').strip()
         if menu.isnumeric():
-            if int(menu) < 1 or int(menu) > 12:
+            if int(menu) < 1 or int(menu) > 13:
                 print('Введено некорректное значение.')
                 menu = ''
         else:
@@ -50,8 +51,47 @@ def copy_file_folder(folder, destination_folder):
         print('Папка/файл ' + folder + ' не существует.')
 
 
+def change_dir(path):
+    try:
+        os.chdir(path)
+        return True
+    except FileNotFoundError:
+        return False
+
+
+def file_or_folder_from_dir(path, folder): # folder: True = папки, False = файлы
+    filter_files = []
+    files = os.listdir(path)
+    for index in range(len(files)):
+        if folder == True:
+            if os.path.isdir(files[index]):
+                filter_files.append(files[index])
+        else:
+            if os.path.isfile(files[index]):
+                filter_files.append(files[index])
+    return filter_files
+
+
+def print_list_in_line(work_list, separator):
+    len_work_list = len(work_list)
+    for index in range(len_work_list):
+        if index == len_work_list - 1:
+            end_string = '.\n'
+        else:
+            end_string = separator
+        print(work_list[index], end=end_string)
+
+
+def list_to_file(file, work_list):
+    for index in range(len(work_list)):
+        if index == 0:
+            file.write(work_list[index])
+        else:
+            file.write(', ' + work_list[index])
+
+
 if __name__ == '__main__':
-    home_dir = os.getcwd() # на случай если в п.11 изменят директорию, для запуска игр
+    home_dir = os.getcwd() # на случай если в п.12 изменят директорию, для запуска игр
     while 1 > 0:
         print_menu()
         menu = int(menu_choose())
@@ -83,21 +123,26 @@ if __name__ == '__main__':
             for index in range(len(files)):
                 print(files[index])
 
-        elif menu == 5: # Посмотреть только папки
-            # print("Все папки:", os.listdir(folder))
-            files = os.listdir()
-            for index in range(len(files)):
-                if os.path.isdir(files[index]):
-                    print(files[index])
+        elif menu == 5: # Cохранить содержимое рабочей директории в файл
+            with open('listdir.txt', 'w', encoding='utf-8') as list_dir:
+                folder_name = file_or_folder_from_dir(os.getcwd(), True)
+                file_name = file_or_folder_from_dir(os.getcwd(), False)
+                list_dir.write('Папки: ')
+                list_to_file(list_dir, folder_name)
+                list_dir.write('\nФайлы: ')
+                list_to_file(list_dir, file_name)
 
-        elif menu == 6: # Посмотреть только файлы
-            print("Все файлы:", os.listdir())
-            files = os.listdir()
-            for index in range(len(files)):
-                if os.path.isfile(files[index]):
-                    print(files[index])
+        elif menu == 6: # Посмотреть только папки
+            folder_name = file_or_folder_from_dir(os.getcwd(), True)
+            print('Папки:', end=' ')
+            print_list_in_line(folder_name, '; ')
 
-        elif menu == 7: # Просмотр информации об операционной системе
+        elif menu == 7: # Посмотреть только файлы
+            file_name = file_or_folder_from_dir(os.getcwd(), False)
+            print('Файлы:', end=' ')
+            print_list_in_line(file_name, '; ')
+
+        elif menu == 8: # Просмотр информации об операционной системе
             uname = platform.uname()
             print('Система: ', uname.system)
             print('Выпуск: ', uname.release)
@@ -105,7 +150,7 @@ if __name__ == '__main__':
             print('Процессор: ', uname.processor)
             print('Имя ПК: ', uname.node)
 
-        elif menu == 8: # Создатель программы
+        elif menu == 9: # Создатель программы
             uname = platform.uname()
             print('Система: ', uname.system)
             if uname.system == 'Linux':
@@ -114,19 +159,21 @@ if __name__ == '__main__':
                 print('Не нашёл, как на Windows реализовать этот пункт.')
                 print('Вариант для Linux:  Path(''manager.py'').owner()')
 
-        elif menu == 9: # Играть в викторину
+        elif menu == 10: # Играть в викторину
             os.startfile(os.path.join(home_dir, 'victory.py')) # на случай если в п.11 изменят директорию, для запуска игр
 
-        elif menu == 10: # Мой банковский счет
+        elif menu == 11: # Мой банковский счет
             os.startfile(os.path.join(home_dir, 'use_functions.py')) # на случай если в п.11 изменят директорию, для запуска игр
 
-        elif menu == 11: # Смена рабочей директории (*необязательный пункт)
+        elif menu == 12: # Смена рабочей директории (*необязательный пункт)
             new_path = input('Сменить рабочую директорию на: ')
-            try:
-                os.chdir(new_path)
+            if change_dir(new_path):
                 print("Текущая рабочая директория:", os.getcwd())
-            except FileNotFoundError:
+            else:
                 print('Указан не верный путь.')
 
-        elif menu == 12: # Выход
+
+
+
+        elif menu == 13: # Выход
             break
