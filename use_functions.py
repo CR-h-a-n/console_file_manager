@@ -36,7 +36,7 @@
 import datetime
 
 
-def comma_to_dot (str):
+def comma_to_dot(str):
     if str.count(',') > 0:
         if str.find(',') > 0:
             str = str[:str.find(',')] + '.' + str[str.find(',') + 1:]
@@ -45,7 +45,7 @@ def comma_to_dot (str):
     return(str)
 
 
-def str_is_float_number (str):
+def str_is_float_number(str):
     if len(str) > 0:
         if str.count(',') + str.count('.') > 1:
             result = False
@@ -63,56 +63,58 @@ def str_is_float_number (str):
 
     return(result)
 
-balance = 0.0
-history = {}
-purchase_number = 0
-while True:
-    print('-' * 10)
-    print ('Текущий счет:', balance)
-    print('-' * 10)
-    print('1. пополнение счета')
-    print('2. покупка')
-    print('3. история покупок')
-    print('4. выход')
-    print('-' * 10)
+
+if __name__ == '__main__':
+    balance = 0.0
+    history = {}
+    purchase_number = 0
+    while True:
+        print('-' * 10)
+        print ('Текущий счет:', balance)
+        print('-' * 10)
+        print('1. пополнение счета')
+        print('2. покупка')
+        print('3. история покупок')
+        print('4. выход')
+        print('-' * 10)
 
 
-    choice = input('Выберите пункт меню: ')
-    if choice == '1':
-        summ_enter = False
-        while summ_enter == False:
-            summ = input('На какую сумму пополнить счет: ')
-            summ_enter = str_is_float_number(summ)
-            if summ_enter == False:
-                print('Введено не корректное число!')
+        choice = input('Выберите пункт меню: ')
+        if choice == '1':
+            summ_enter = False
+            while summ_enter == False:
+                summ = input('На какую сумму пополнить счет: ')
+                summ_enter = str_is_float_number(summ)
+                if summ_enter == False:
+                    print('Введено не корректное число!')
 
-        summ = float(comma_to_dot(summ))
-        balance += summ
+            summ = float(comma_to_dot(summ))
+            balance += summ
 
-    elif choice == '2':
-        price_enter = False
-        while price_enter == False:
-            price = input('Цена покупки: ')
-            price_enter = str_is_float_number(price)
-            if price_enter == False:
-                print('Введено не корректное число!')
+        elif choice == '2':
+            price_enter = False
+            while price_enter == False:
+                price = input('Цена покупки: ')
+                price_enter = str_is_float_number(price)
+                if price_enter == False:
+                    print('Введено не корректное число!')
 
-        price = float(comma_to_dot(price))
-        if balance >= price:
-            purchase = input('Введите название покупки: ')
-            history[purchase_number] = [purchase, price]
-            balance -= price
-            purchase_number += 1
+            price = float(comma_to_dot(price))
+            if balance >= price:
+                purchase = input('Введите название покупки: ')
+                history[purchase_number] = [purchase, price]
+                balance -= price
+                purchase_number += 1
+            else:
+                print('На счете недостаточно денег.')
+
+        elif choice == '3':
+            history_keys = tuple(history.keys())
+            for index in range(len(history_keys)):
+                print('Покупка:', list(history[history_keys[index]])[0], 'Цена:', list(history[history_keys[index]])[1])
+
+            pass
+        elif choice == '4':
+            break
         else:
-            print('На счете недостаточно денег.')
-
-    elif choice == '3':
-        history_keys = tuple(history.keys())
-        for index in range(len(history_keys)):
-            print('Покупка:', list(history[history_keys[index]])[0], 'Цена:', list(history[history_keys[index]])[1])
-
-        pass
-    elif choice == '4':
-        break
-    else:
-        print('Неверный пункт меню')
+            print('Неверный пункт меню')
