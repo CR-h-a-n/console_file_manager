@@ -4,6 +4,15 @@ import shutil
 from pathlib import Path
 
 
+def separato_20_stars(func):
+    def inner(*args, **kwargs):
+        print('*'*20)
+        result = func(*args, **kwargs)
+        return result
+    return inner
+
+
+@separato_20_stars
 def print_menu():
     print('  1. Cоздать папку', '\n',
           ' 2. Удалить (файл/папку)', '\n',
@@ -20,6 +29,7 @@ def print_menu():
           '13. Выход')
 
 
+@separato_20_stars
 def menu_choose():
     menu = ''
     while not menu.isnumeric():
@@ -37,10 +47,7 @@ def copy_file_folder(folder, destination_folder):
     if os.path.exists(folder):
         if os.path.isdir(folder):
             copy_to = os.path.join(os.getcwd(), destination_folder, folder)
-            if not os.path.exists(copy_to):
-                shutil.copytree(folder, copy_to)
-            else:
-                print('Копирование невозможно, т.к. в папке назначения уже есть копируемая папка.')
+            shutil.copytree(folder, copy_to) if not os.path.exists(copy_to) else print('Копирование невозможно, т.к. в папке назначения уже есть копируемая папка.')
         else:
             copy_from = os.path.join(os.getcwd(), folder)
             copy_to = os.path.join(os.getcwd(), destination_folder)
@@ -54,9 +61,10 @@ def copy_file_folder(folder, destination_folder):
 def change_dir(path):
     try:
         os.chdir(path)
-        return True
     except FileNotFoundError:
         return False
+    else:
+        return True
 
 
 def file_or_folder_from_dir(path, folder): # folder: True = папки, False = файлы
@@ -72,22 +80,14 @@ def file_or_folder_from_dir(path, folder): # folder: True = папки, False = 
     return filter_files
 
 
+@separato_20_stars
 def print_list_in_line(work_list, separator):
     len_work_list = len(work_list)
-    for index in range(len_work_list):
-        if index == len_work_list - 1:
-            end_string = '.\n'
-        else:
-            end_string = separator
-        print(work_list[index], end=end_string)
+    [print(work_list[index], end='.\n' if index == len_work_list - 1 else separator) for index in range(len_work_list)]
 
 
 def list_to_file(file, work_list):
-    for index in range(len(work_list)):
-        if index == 0:
-            file.write(work_list[index])
-        else:
-            file.write(', ' + work_list[index])
+    [file.write(work_list[index]) if index == 0 else file.write(', ' + work_list[index]) for index in range(len(work_list))]
 
 
 if __name__ == '__main__':
@@ -98,21 +98,11 @@ if __name__ == '__main__':
 
         if menu == 1: # Cоздать папку
             folder = input('Введите имя создаваемой папки: ')
-            if not os.path.isdir(folder):
-                os.mkdir(folder)
-            else:
-                print('Папка ' + folder + ' уже существует.')
+            os.mkdir(folder) if not os.path.isdir(folder) else print('Папка ' + folder + ' уже существует.')
 
         elif menu == 2: # Удалить (файл/папку)
             folder = input('Введите имя удаляемого файла/папки: ')
-
-            if os.path.exists(folder):
-                if os.path.isdir(folder):
-                    shutil.rmtree(folder)
-                else:
-                    os.remove(folder)
-            else:
-                print('Папка/файл ' + folder + ' не существует.')
+            shutil.rmtree(folder) if os.path.isdir(folder) else os.remove(folder) if os.path.exists(folder) else print('Папка/файл ' + folder + ' не существует.')
 
         elif menu == 3: # Копировать (файл/папку)
             folder = input('Введите имя копируемого файла/папки: ')
@@ -120,8 +110,7 @@ if __name__ == '__main__':
 
         elif menu == 4: # Просмотр содержимого рабочей директории
             files = os.listdir()
-            for index in range(len(files)):
-                print(files[index])
+            [print(file) for file in files]
 
         elif menu == 5: # Cохранить содержимое рабочей директории в файл
             with open('listdir.txt', 'w', encoding='utf-8') as list_dir:
@@ -134,12 +123,12 @@ if __name__ == '__main__':
 
         elif menu == 6: # Посмотреть только папки
             folder_name = file_or_folder_from_dir(os.getcwd(), True)
-            print('Папки:', end=' ')
+            print('Папки:')
             print_list_in_line(folder_name, '; ')
 
         elif menu == 7: # Посмотреть только файлы
             file_name = file_or_folder_from_dir(os.getcwd(), False)
-            print('Файлы:', end=' ')
+            print('Файлы:')
             print_list_in_line(file_name, '; ')
 
         elif menu == 8: # Просмотр информации об операционной системе
@@ -167,13 +156,7 @@ if __name__ == '__main__':
 
         elif menu == 12: # Смена рабочей директории (*необязательный пункт)
             new_path = input('Сменить рабочую директорию на: ')
-            if change_dir(new_path):
-                print("Текущая рабочая директория:", os.getcwd())
-            else:
-                print('Указан не верный путь.')
-
-
-
+            print("Текущая рабочая директория:", os.getcwd()) if change_dir(new_path) else print('Указан не верный путь.')
 
         elif menu == 13: # Выход
             break
